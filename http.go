@@ -3,10 +3,8 @@ package main
 import (
 	"bytes"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -57,7 +55,8 @@ func (self reqHandler) html(w http.ResponseWriter, r *http.Request) {
 		ParsedContent: template.HTML(readMd(self.MarkdownFile)),
 		Filename:      self.MarkdownFile,
 	}
-	tmpl := template.Must(template.ParseFiles(self.docroot + "/html/page.tmpl"))
+	var t = template.Must(template.New("page").Parse("html"))
+	tmpl := template.Must(t.Parse(PAGE))
 	var html bytes.Buffer
 	err := tmpl.Execute(&html, self.docData)
 	if err != nil {
@@ -68,34 +67,12 @@ func (self reqHandler) html(w http.ResponseWriter, r *http.Request) {
 
 func (self reqHandler) css(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/css")
-	cssDir := self.docroot + "/css/"
-	w.Write(concatFiles(cssDir, ".css"))
-}
-
-func concatFiles(dir string, ext string) []byte {
-	files, err := ioutil.ReadDir(dir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var concatedFiles []byte
-	for _, file := range files {
-		if strings.HasSuffix(file.Name(), ext) {
-			// log.Printf("Reading %v", file.Name())
-			f, err := ioutil.ReadFile(dir + file.Name())
-			if err != nil {
-				log.Fatal(err)
-			}
-			concatedFiles = append(concatedFiles[:], f[:]...)
-		}
-	}
-	return concatedFiles
+	w.Write([]byte(CSS))
 }
 
 func (self reqHandler) js(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/js")
-	jsDir := self.docroot + "/js/"
-	w.Write(concatFiles(jsDir, ".js"))
+	w.Write([]byte(JS))
 }
 
 func reader(ws *websocket.Conn) {

@@ -1,4 +1,6 @@
-(function() {
+package main
+
+const JS = `(function() {
   var md = document.getElementById("markdown");
   var conn = new WebSocket("ws://" + location.host +
       "/ws?lastMod=" + (new Date().valueOf()));
@@ -10,4 +12,4 @@
     md.innerHTML = evt.data;
   }
 })();
-
+`

@@ -17,21 +17,12 @@ func fsWatch(filename string, wsCh chan string, done chan bool) {
 		for {
 			select {
 			case ev := <-watcher.Events:
-				log.Printf("%v == %v", filepath.Base(ev.Name), filename)
 				if filepath.Base(ev.Name) == filepath.Base(filename) {
 					switch ev.Op {
-					case fsnotify.Create:
-						log.Printf("fsevent: Created %v", ev.Name)
+					default:
+						continue
 					case fsnotify.Write:
 						wsCh <- readMd(filename)
-						log.Printf("fsevent: Written %v", ev.Name)
-					case fsnotify.Remove:
-						log.Printf("fsevent: Deleted %v", ev.Name)
-					case fsnotify.Rename:
-						log.Printf("fsevent: Renamed %v", ev.Name)
-					case fsnotify.Chmod:
-						log.Printf("fsevent: Changed permissions for %v", ev.Name)
-
 					}
 				}
 
@@ -46,7 +37,5 @@ func fsWatch(filename string, wsCh chan string, done chan bool) {
 		log.Fatal(err)
 	}
 	<-done
-
-	/* ... do stuff ... */
 	watcher.Close()
 }
