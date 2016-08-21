@@ -35,8 +35,6 @@ type DocData struct {
 }
 
 func (self reqHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// var doc string
-	// log.Printf("%s %s User-Agent: %+v", r.Method, r.RequestURI, r.Header["User-Agent"])
 	switch r.RequestURI {
 	default:
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
@@ -81,7 +79,6 @@ func reader(ws *websocket.Conn) {
 	ws.SetReadLimit(512)
 	ws.SetReadDeadline(time.Now().Add(pongWait))
 	ws.SetPongHandler(func(string) error {
-		// log.Println("ws: Received pong")
 		ws.SetReadDeadline(time.Now().Add(pongWait))
 		return nil
 	})
@@ -104,7 +101,6 @@ func writer(ws *websocket.Conn, wsCh chan string) {
 	for {
 		select {
 		case content := <-wsCh:
-			// log.Println("ws: File changed")
 			ws.SetWriteDeadline(time.Now().Add(deadlineTime))
 			err := ws.WriteMessage(websocket.TextMessage, []byte(content))
 			if err != nil {
@@ -113,7 +109,6 @@ func writer(ws *websocket.Conn, wsCh chan string) {
 			}
 
 		case <-pingTicker.C:
-			// log.Printf("sending ping")
 			ws.SetWriteDeadline(time.Now().Add(deadlineTime))
 			err := ws.WriteMessage(websocket.PingMessage, []byte{})
 			if err != nil {
